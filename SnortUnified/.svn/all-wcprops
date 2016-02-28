@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/56/trunk/SnortUnified
+END
+MetaData.pm
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/56/trunk/SnortUnified/MetaData.pm
+END
+Handlers.pm
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/56/trunk/SnortUnified/Handlers.pm
+END
+Database.pm
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/56/trunk/SnortUnified/Database.pm
+END
+TextOutput.pm
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/56/trunk/SnortUnified/TextOutput.pm
+END
+Decoders.pm
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/56/trunk/SnortUnified/Decoders.pm
+END

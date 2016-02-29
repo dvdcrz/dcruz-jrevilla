@@ -119,9 +119,6 @@ sub demonio{
                 print $bitacora "\nTam actual : ".$file_size_act;
                 print $bitacora "\nTam Anterior : ".$file_size_ant."\n";
                 close($bitacora);
-                
-
-                
                 sleep(30);
         }
 
@@ -192,6 +189,14 @@ sub imprime_incidentes
         close($salida_plano);
 }
 
-
+sub obtener_archivos{
+        opendir (DIR,shift) or die "No se pudo abrir el directorio";
+        my @files;
+        while(readdir(DIR)){
+                if($_ !~  /^\..*/){ push @files,$_; }
+        }
+        closedir (DIR);
+        return @files;
+}
 
 1;

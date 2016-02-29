@@ -8,8 +8,9 @@ $id=0;
 
  while ( $record = readSnortUnified2Record() ) 
 {
-	
-	if($record->{TYPE} == 7)
+		#7               Unified2 IDS Event
+		#72              Unified2 IDS Event IP6
+	if($record->{TYPE} == 7 || $record->{TYPE} == 72)
 	{
 		if(exists($incidentes{$record->{'class'},$record->{'sip'},$record->{'protocol'}}))
 		{
@@ -19,7 +20,7 @@ $id=0;
 		}
 		else
 		{
-			$incidentes{$record->{'class'},$record->{'sip'},$record->{'protocol'}}={'id_evento' => ++$id,'n_eventos' => 1,'primero' => $record, 'ultimo' => $record}; 
+			$incidentes{$record->{'class'},$record->{'sip'},$record->{'protocol'}}={'id_incidente' => ++$id,'n_eventos' => 1,'primero' => $record, 'ultimo' => $record}; 
 		}
 			#print "$record->{'class'} $record->{'sip'} $record->{'protocol'}\n";
 			#$incidentes{$record->{'class'}}{$record->{'sip'}}{$record->{'protocol'}}++;
@@ -34,7 +35,7 @@ foreach $key (keys %incidentes)
 		print "$dentro  : $incidentes{$key}{$dentro}\n";
 	}
 }
-print (Dumper(%incidentes));
+#print (Dumper(%incidentes));
 closeSnortUnified();
 
 

@@ -17,6 +17,7 @@ $id=0;
 			$incidentes{$record->{'class'},$record->{'sip'},$record->{'protocol'}}{'n_eventos'}++;
 			$incidentes{$record->{'class'},$record->{'sip'},$record->{'protocol'}}{'ultimo'} = $record;
 
+
 		}
 		else
 		{
@@ -27,15 +28,26 @@ $id=0;
 			#print("entro");
 	}		
 } 
+#open($salida, '>:raw','salidaunified2')or die "no se pudo abrir $!";
+
 foreach $key (keys %incidentes)
 {
-	print "key : $key  \n";
+	if($incidentes{$key}{primero}{TYPE} == 7)
+	{
+		#print "entro \n";
+		#print $salida pack('N11n2c2',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE},$incidentes{$key}{primero}{raw_record});
+		#print $salida pack('NNN11n2c2',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE},$incidentes{$key}{primero}{raw_record});
+		print pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
+	}
+	
+	#print "key : $key  \n";
 	for $dentro (keys $incidentes{$key})
 	{
-		print "$dentro  : $incidentes{$key}{$dentro}\n";
+	#	print "$dentro  : $incidentes{$key}{$dentro}\n";
 	}
 }
 #print (Dumper(%incidentes));
 closeSnortUnified();
+#close($salida);
 
 

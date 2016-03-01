@@ -2,7 +2,7 @@ use SnortUnified(qw(:ALL));
 UF_Data = openSnortUnified(shift);
 
 
-open($salida, '>:raw','eventosgenerados')or die "no se pudo abrir $!";
+open($salida, '>>:raw','eventosgenerados')or die "no se pudo abrir $!";
  while ( $record = readSnortUnified2Record() ) 
 {
 	open($salida, '>:raw','eventosgenerados')or die "no se pudo abrir $!";

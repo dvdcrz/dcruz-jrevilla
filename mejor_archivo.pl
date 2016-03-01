@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#poner solo las bibliotecas que se van a usar
 use SnortUnified(qw(:ALL)); 
 use Data::Dumper;
 
@@ -18,6 +19,10 @@ $id=0;
 		{
 			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'n_eventos'}++;
 			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo'} = $record;
+			#suponiendo que snort siempre escribe el los eventos en un orden evento,paquete,evento
+			# obtenemos el paquete correspondiente al evento
+			$paquete = readSnortUnified2Record();
+			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo_paquete'} = $paquete;
 
 
 		}
@@ -25,6 +30,9 @@ $id=0;
 		{
 			#si no existe el incidente se crea con el eventeo primero ultimo iguales
 			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}={'id_incidente' => ++$id,'n_eventos' => 1,'primero' => $record, 'ultimo' => $record}; 
+			$paquete = readSnortUnified2Record();
+			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'primero_paquete'} = $paquete;
+			$incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo_paquete'} = $paquete;
 		}
 			#print "$record->{'class'} $record->{'sip'} $record->{'protocol'}\n";
 			#$incidentes{$record->{'class'}}{$record->{'sip'}}{$record->{'protocol'}}++;
@@ -39,23 +47,17 @@ print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
 
 foreach $key (keys %incidentes)
 {
-
-	if($incidentes{$key}{primero}{TYPE} == 7)
-	{
-		#print "entro \n";
-		#print $salida pack('N11n2c2',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE},$incidentes{$key}{primero}{raw_record});
-		#print $salida pack('NNN11n2c2',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE},$incidentes{$key}{primero}{raw_record});
-
-		#pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registor
-		print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
-		print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
-	}
+	#pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registor
+	print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
+	print $salida  pack('NN',$incidentes{$key}{primero_paquete}{TYPE},$incidentes{$key}{primero_paquete}{SIZE}).$incidentes{$key}{primero_paquete}{raw_record};
+	print $salida  pack('NN',$incidentes{$key}{ultimo}{TYPE},$incidentes{$key}{ultimo}{SIZE}).$incidentes{$key}{ultimo}{raw_record};
+	print $salida  pack('NN',$incidentes{$key}{ultimo_paquete}{TYPE},$incidentes{$key}{ultimo_paquete}{SIZE}).$incidentes{$key}{ultimo_paquete}{raw_record};
 	
-	#print "key : $key  \n";
-	for $dentro (keys $incidentes{$key})
-	{
-	#	print "$dentro  : $incidentes{$key}{$dentro}\n";
-	}
+
+	print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
+	
+	
+	
 }
 #print (Dumper(%incidentes));
 closeSnortUnified();

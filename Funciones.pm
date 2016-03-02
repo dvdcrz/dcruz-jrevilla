@@ -43,7 +43,7 @@ sub procesa_archivo{
                                         #print("entro");
                         }
 		}
-                open($salida, '+>:raw',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
+                open($salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
                 open($salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
 
                 #se iteran en el hash de incidentes
@@ -67,6 +67,7 @@ sub procesa_archivo{
                 close($salida);
                 close($salida_plano);
 }
+
 sub demonio{
 
 #my $filename = shift;
@@ -79,6 +80,7 @@ my $daemon = Proc::Daemon -> new(
         );
 
 my $pid = $daemon->Init();
+        
 }
 
 1;

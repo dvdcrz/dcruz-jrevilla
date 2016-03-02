@@ -83,59 +83,92 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help'){
 }else{
 	my $error=0;	
 	#Recorremos todos los argumentos
-	while((my $arg = shift @ARGV) && $error == 0){
-		if($arg eq '-d' || $arg eq '--directory'){
+	while((my $arg = shift @ARGV) && $error == 0)
+	{
+		if($arg eq '-d' || $arg eq '--directory')
+		{
 			$directory = shift @ARGV;
 			print "\nDirectory: ".$directory;
-		}elsif($arg eq '-o' || $arg eq '--origin'){
+		}
+		elsif($arg eq '-o' || $arg eq '--origin')
+		{
 			$origin = shift @ARGV;
 			print "\nOrigin Directory: ".$origin;		
-		}elsif($arg eq '-l' || $arg eq '--log'){
+		}
+		elsif($arg eq '-l' || $arg eq '--log')
+		{
 			$log_dir = shift @ARGV;
 			print "\nLog Directory: ".$log_dir;
-		}elsif($arg eq '-c' || $arg eq '--continuos'){
+		}
+		elsif($arg eq '-c' || $arg eq '--continuos')
+		{
 			$modo_continuo = 1;
 			print "\nModo continuo activado";
-		}elsif($arg eq '-b' || $arg eq '--batch'){
+		}
+		elsif($arg eq '-b' || $arg eq '--batch')
+		{
 			$modo_batch = 1;
 			print "\nModo batch activado: ";
-		}elsif($modo_batch == 1){
+		}
+		elsif($modo_batch == 1)
+		{
 			push @files,$arg;
 			print "\t".$arg;
-		}elsif($arg eq '-f' || $arg eq '--file'){
+		}
+		elsif($arg eq '-f' || $arg eq '--file')
+		{
 			$file = shift @ARGV;
 			print "\nArchivo: ".$file;	
-		}else{
+		}
+		else
+		{
 			$error=1;
 			print "Error de sintaxis";
 		}
 	}
 
 	#Si no hubo error en la sintaxis de los argumentos
-	if($error == 0){
+	if($error == 0)
+	{
 		#Checamos la opciones
-		if($modo_batch == 0){ 
-			if($file ne ""){
-				if($modo_continuo == 1){
+		if($modo_batch == 0)
+		{ 
+			if($file ne "")
+			{
+				if($modo_continuo == 1)
+				{
 					print "Se activa el demonio";
-				}else{
+				}
+				else
+				{
 					procesa_archivo($file,$log_directory,$directory,'salida');
 				}
-			}else{
+			}
+			else
+			{
 				print "\n\nERROR debes ingresar un el nombre del archivo con la bandera -f\n\n";
 			}
-		}else{
-			if($file eq ""){  #checamos que si esta modo por lotes no pueda usar la bandera -f porque los archivo se pasan por -b archivo1 archivo2
-				if(my $tam = @files != 0){
+		}
+		else
+		{
+			if($file eq "")
+			{  #checamos que si esta modo por lotes no pueda usar la bandera -f porque los archivo se pasan por -b archivo1 archivo2
+				if(my $tam = @files != 0)
+				{
 					my $cont=0;
-					foreach(@files){
+					foreach(@files)
+					{
 						procesa_archivo($_,$log_directory,$directory,$cont);
 						$cont++;
 					}
-				}else{
+				}
+				else
+				{
 					print "\n\nERROR debes ingresar la lista de archivos despues de -b\n\n";
 				}
-			}else{ 
+			}
+			else
+			{ 
 				print "\n\nERROR de sintaxis: no puedes usar -b con -f\n\n";
 			}
 		}

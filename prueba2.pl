@@ -135,17 +135,20 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help'){
 		{ 
 			if($file ne "")
 			{
+				#modo demonio
 				if($modo_continuo == 1)
 				{
 					print "Se activa el demonio";
 				}
 				else
 				{
+					#funcionamiento normal
 					procesa_archivo($file,$log_directory,$directory,'salida');
 				}
 			}
 			else
 			{
+
 				print "\n\nERROR debes ingresar un el nombre del archivo con la bandera -f\n\n";
 			}
 		}
@@ -155,9 +158,11 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help'){
 			{  #checamos que si esta modo por lotes no pueda usar la bandera -f porque los archivo se pasan por -b archivo1 archivo2
 				if(my $tam = @files != 0)
 				{
+					#est es el modo batch
 					my $cont=0;
 					foreach(@files)
 					{
+						#se manda el nombre del archivo, directorio de log y de salida y numero??
 						procesa_archivo($_,$log_directory,$directory,$cont);
 						$cont++;
 					}

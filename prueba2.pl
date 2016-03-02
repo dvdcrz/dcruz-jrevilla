@@ -43,6 +43,7 @@ else
 		elsif($arg eq '-c' || $arg eq '--continuos')
 		{
 			$modo_continuo = 1;
+			$file = shift @ARGV;
 			print "\nModo continuo activado";
 		}
 		elsif($arg eq '-b' || $arg eq '--batch')
@@ -80,6 +81,7 @@ else
 				{
 					#AQUI DEBE IR LLAMADA A DEMONIO
 					print "Se activa el demonio";
+					demonio($log_directory,$directory,'uno',$file);
 				}
 				else
 				{
@@ -111,7 +113,7 @@ else
 					#procesa_lote(\@files,$log_directory,$directory,1);
 					$referencia_incidentes =procesa_lote(\@files);
 					%incidentes = %{$referencia_incidentes};
-					
+
 					imprime_incidentes(\%incidentes,$log_directory,$directory,1);
 				}
 				else

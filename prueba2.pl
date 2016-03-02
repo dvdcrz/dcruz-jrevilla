@@ -3,7 +3,7 @@
 use SnortUnified(qw(:ALL));
 use Funciones;
 use Cwd;
-
+use Data::Dumper;
 
 #Variables locales
 my $directory = getcwd();  #Directorio actual por default
@@ -100,13 +100,19 @@ else
 				if(my $tam = @files != 0)
 				{
 					#est es el modo batch
-					my $cont=0;
-					foreach(@files)
-					{
+					#my $cont=0;
+					#foreach(@files)
+					#{
 						#se manda el nombre del archivo, directorio de log y de salida y numero??
-						procesa_archivo($_,$log_directory,$directory,$cont);
-						$cont++;
-					}
+					#	procesa_archivo($_,$log_directory,$directory,$cont);
+					#	$cont++;
+					#}
+					#print "entro a alote\n";
+					#procesa_lote(\@files,$log_directory,$directory,1);
+					$referencia_incidentes =procesa_lote(\@files);
+					%incidentes = %{$referencia_incidentes};
+					
+					imprime_incidentes(\%incidentes,$log_directory,$directory,1);
 				}
 				else
 				{

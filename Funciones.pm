@@ -1,26 +1,25 @@
 #!/usr/bin/perl
 use Proc::Daemon;
-sub procesa_archivo{
-	my @argumentos = @_;
-	my $file = $argumentos[0];
-	my $directory_log = $argumentos[1];
-	my $directory = $argumentos[2];
-	my $name_output_file = $argumentos[3];
-
-	open (STDERR, '>>', $directory_log.'bitacora.log') or die "No se pudo abrir";       
-                $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
-                %incidentes=();
-                $id=0;
-                $posicion_final;
-                while ( $record = readSnortUnified2Record() )
+use Data::Dumper;
+sub obtiene_incidentes
+{
+        my @argumentos = @_;
+        #print Dumper(@argumentos); 
+        my %incidentes = %{$argumentos[0]};
+        my $file = $argumentos[1];
+        my $id=$argumentos[2];
+        my $contador;
+        $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
+        while ( $record = readSnortUnified2Record() )
                 {
-                        $posicion_final = $UF->{'FILEPOS'};
+                        
                                 #7               Unified2 IDS Event
                                 #72              Unified2 IDS Event IP6
                                 #si el registro es un evento
                         if($record->{TYPE} == 7 || $record->{TYPE} == 72)
                         {
-				#si el incidente ya existe en el hash de eventos se agrega 1 al contador y se sobre escribe registro ultimo
+                                $contador++;
+                                #si el incidente ya existe en el hash de eventos se agrega 1 al contador y se sobre escribe registro ultimo
                                 if(exists($incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}))
                                 {
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'n_eventos'}++;
@@ -42,17 +41,98 @@ sub procesa_archivo{
                                         #$incidentes{$record->{'class'}}{$record->{'sip'}}{$record->{'protocol'}}++;
                                         #print("entro");
                         }
-		}
-                open($salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
-                open($salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
+                }
+                closeSnortUnified();
+                print "se contaron $contador eventos \n";
+       # print Dumper(%incidentes);
+       print $id;
+        return (\%incidentes,$id);
 
-                #se iteran en el hash de incidentes
-                print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
 
+}
+sub procesa_archivo{
+	my @argumentos = @_;
+	my $file = $argumentos[0];
+	my $directory_log = $argumentos[1];
+	my $directory = $argumentos[2];
+	my $name_output_file = $argumentos[3];
+        my $id=0;
+         print "\nprocesando $file\n";
+                @resultado=obtiene_incidentes(\%incidentes,$file,$id);
+                $id=$resultado[1];
+                %incidentes=%{$resultado[0]};
+                        
+        print "\nse proceso $file\n";
+        imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
 
-                foreach $key (keys %incidentes)
+	
+}
+
+sub demonio{
+
+        #my $filename = shift;
+        #print "Archivo: ".$filename;
+        my $daemon = Proc::Daemon -> new(
+                work_dir => '/home/jrevilla/Downloads/dcruz-jrevilla/',
+                child_SDTOUT => 'salida.txt',
+                child_STDERR => '+>>debug.txt',
+                exec_command => 'perl /home/jrevilla/Downloads/dcruz-jrevilla/mejor_archivo.pl /home/dcruz-jrevilla/eventosgenerados'
+                );
+
+        my $pid = $daemon->Init();
+
+}
+sub procesa_lote{
+        #$|=1;
+        print "\n\nentro a lote sdsd";
+        my $referenciaarch = shift;
+        my @files = @{$referenciaarch};
+       # print @files;
+        #print "entro\n";
+        #my $directory_log = $argumentos[1];
+        #my $directory = $argumentos[2];
+        #my $name_output_file = $argumentos[3];
+
+        open (STDERR, '>>', $directory_log.'bitacora.log') or die "No se pudo abrir";       
+        $incidentes_ref;
+        @resultado;
+        %incidentes=();
+        $id=0;
+        $posicion_final;
+                foreach(@files)
                 {
-			#pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registor
+                        print "\nprocesando $_\n";
+                       @resultado=obtiene_incidentes(\%incidentes,$_,$id);
+                       $id=$resultado[1];
+                       %incidentes=%{$resultado[0]};
+                        
+                         print "\nse proceso $_\n";
+
+                }
+        #imprime_incidentes(\%incidentes);
+        return \%incidentes;
+
+}
+
+sub imprime_incidentes
+{
+        my @argumentos = @_;
+        #print Dumper(@argumentos); 
+        my %incidentes = %{$argumentos[0]};
+        my $directory_log = $argumentos[1];
+        my $directory = $argumentos[2];
+        my $name_output_file = $argumentos[3];
+        
+        open($salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
+        open($salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
+
+        #se iteran en el hash de incidentes
+        print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
+
+
+        foreach $key (keys %incidentes)
+        {
+                        #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registor
                         print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{primero_paquete}{TYPE},$incidentes{$key}{primero_paquete}{SIZE}).$incidentes{$key}{primero_paquete}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{ultimo}{TYPE},$incidentes{$key}{ultimo}{SIZE}).$incidentes{$key}{ultimo}{raw_record};
@@ -60,27 +140,14 @@ sub procesa_archivo{
 
 
                         print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
-		}
-                print "lelgo aqui $posicion_final";
-                #print (Dumper(%incidentes));
-                closeSnortUnified();
-                close($salida);
-                close($salida_plano);
+        }
+        print "lelgo aqui $posicion_final";
+        #print (Dumper(%incidentes));
+                
+        close($salida);
+        close($salida_plano);
 }
 
-sub demonio{
 
-#my $filename = shift;
-#print "Archivo: ".$filename;
-my $daemon = Proc::Daemon -> new(
-        work_dir => '/home/jrevilla/Downloads/dcruz-jrevilla/',
-        child_SDTOUT => 'salida.txt',
-        child_STDERR => '+>>debug.txt',
-        exec_command => 'perl /home/jrevilla/Downloads/dcruz-jrevilla/mejor_archivo.pl /home/dcruz-jrevilla/eventosgenerados'
-        );
-
-my $pid = $daemon->Init();
-        
-}
 
 1;

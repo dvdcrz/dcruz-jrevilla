@@ -69,17 +69,53 @@ sub procesa_archivo{
 }
 
 sub demonio{
-
+        my @argumentos = @_;
+        #print Dumper(@argumentos); 
+        my $directory_log = $argumentos[0];
+        my $directory = $argumentos[1];
+        my $name_output_file = $argumentos[2];
+        my $file = $argumentos[3];
         #my $filename = shift;
         #print "Archivo: ".$filename;
         my $daemon = Proc::Daemon -> new(
-                work_dir => '/home/jrevilla/Downloads/dcruz-jrevilla/',
-                child_SDTOUT => 'salida.txt',
-                child_STDERR => '+>>debug.txt',
-                exec_command => 'perl /home/jrevilla/Downloads/dcruz-jrevilla/mejor_archivo.pl /home/dcruz-jrevilla/eventosgenerados'
+                work_dir => $directory,
+                child_SDTOUT => '+>>'.$directory_log.'salida.txt',
+                child_STDERR => '+>>'..$directory_log.'debug.txt',
+                
                 );
 
         my $pid = $daemon->Init();
+        my $id=0;
+        my %incidentes;
+        my @resultado;
+        my $file_size_act = -s $filename;
+        my $file_size_ant = 0;
+        while (1)
+        {
+                open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
+
+                if($file_size_act != $file_size_ant)
+                {
+                        print $bitacora "\n--->Entro en el if";
+                        print $bitacora "\nTam actual en if: ".$file_size_act;
+                        print $bitacora "\nTam Anterior en if: ".$file_size_ant."\n";
+                        @resultado=obtiene_incidentes(\%incidentes,$file,$id);
+                        $id=$resultado[1];
+                        %incidentes=%{$resultado[0]};
+                        imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
+                }
+
+                $file_size_ant = $file_size_act;
+                $file_size_act = -s $filename;
+                print $bitacora "\n----------------------------------------------------";
+                print $bitacora "\nTam actual : ".$file_size_act;
+                print $bitacora "\nTam Anterior : ".$file_size_ant."\n";
+                close($bitacora);
+                
+
+                
+                sleep(30);
+        }
 
 }
 sub procesa_lote{

@@ -11,6 +11,6 @@ $UF_Data = openSnortUnified(shift);
 	print $salida pack('NN',$record->{TYPE},$record->{SIZE}).$record->{raw_record};
 	close($salida);
 
-	sleep(5);
+	sleep(1);
 
 }

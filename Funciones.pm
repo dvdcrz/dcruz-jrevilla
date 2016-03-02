@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-
+use Proc::Daemon;
 sub procesa_archivo{
 	my @argumentos = @_;
 	my $file = $argumentos[0];
@@ -11,8 +11,10 @@ sub procesa_archivo{
                 $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
                 %incidentes=();
                 $id=0;
+                $posicion_final;
                 while ( $record = readSnortUnified2Record() )
                 {
+                        $posicion_final = $UF->{'FILEPOS'};
                                 #7               Unified2 IDS Event
                                 #72              Unified2 IDS Event IP6
                                 #si el registro es un evento
@@ -59,10 +61,24 @@ sub procesa_archivo{
 
                         print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
 		}
+                print "lelgo aqui $posicion_final";
                 #print (Dumper(%incidentes));
                 closeSnortUnified();
                 close($salida);
                 close($salida_plano);
+}
+sub demonio{
+
+#my $filename = shift;
+#print "Archivo: ".$filename;
+my $daemon = Proc::Daemon -> new(
+        work_dir => '/home/jrevilla/Downloads/dcruz-jrevilla/',
+        child_SDTOUT => 'salida.txt',
+        child_STDERR => '+>>debug.txt',
+        exec_command => 'perl /home/jrevilla/Downloads/dcruz-jrevilla/mejor_archivo.pl /home/dcruz-jrevilla/eventosgenerados'
+        );
+
+my $pid = $daemon->Init();
 }
 
 1;

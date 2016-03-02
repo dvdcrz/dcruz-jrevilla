@@ -7,6 +7,9 @@ my $filename = shift;
 my $file_size_act = -s $filename;
 my $file_size_ant = 0;
 print "Nombre Archivo: ".$filename;
+%incidentes=();
+		$id=0;
+$posicion_final=0 ;
 while(1){
 	open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
 	if($file_size_act ne $file_size_ant){
@@ -15,11 +18,12 @@ while(1){
 	        print $bitacora "\nTam Anterior en if: ".$file_size_ant."\n";
 
 		$UF_Data = openSnortUnified($filename);
-		%incidentes=();
-		$id=0;
+		$UF->{'FILEPOS'}=$posicion_final;
+		
 		#se lee eel archivo en busca de eventos y se generan incidentes mediante uso de un hash de hashes
 		 while ( $record = readSnortUnified2Record() ) 
 		{
+			$posicion_final = $UF->{'FILEPOS'};
 				#7               Unified2 IDS Event
 				#72              Unified2 IDS Event IP6
 				#si el registro es un evento
@@ -47,8 +51,10 @@ while(1){
 					#$incidentes{$record->{'class'}}{$record->{'sip'}}{$record->{'protocol'}}++;
 					#print("entro");
 			}		
-		} 
-		open($salida, '+>:raw','salidaunified2')or die "no se pudo abrir $!";
+		}
+		print "lelgo aqui $posicion_final"; 
+		$|=1;
+		open($salida, '+>:unix','salidaunified2')or die "no se pudo abrir $!";
 		open($salida_plano, '+>','salidaplano')or die "no se pudo abrir $!";
 		
 		#se iteran en el hash de incidentes
@@ -82,5 +88,5 @@ while(1){
 	print $bitacora "\nTam actual : ".$file_size_act;
 	print $bitacora "\nTam Anterior : ".$file_size_ant."\n";
 	close($bitacora);
-	sleep(60);
+	sleep(30);
 }

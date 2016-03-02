@@ -79,19 +79,22 @@ sub demonio{
         #print "Archivo: ".$filename;
         my $daemon = Proc::Daemon -> new(
                 work_dir => $directory,
-                child_SDTOUT => '+>>'.$directory_log.'salida.txt',
-                child_STDERR => '+>>'..$directory_log.'debug.txt',
+                child_SDTOUT => '+>>salida.txt',
+                child_STDERR => '+>>debug.txt',
                 
                 );
 
-        my $pid = $daemon->Init();
+        my $pid = $daemon->Init;
         my $id=0;
         my %incidentes;
         my @resultado;
-        my $file_size_act = -s $filename;
+        my $file_size_act = -s $file;
         my $file_size_ant = 0;
+        $|=1;
+        print "se incio con $pid";
         while (1)
         {
+                print "archivo $file id $id  tamño $file_size_act\n";
                 open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
 
                 if($file_size_act != $file_size_ant)
@@ -106,7 +109,7 @@ sub demonio{
                 }
 
                 $file_size_ant = $file_size_act;
-                $file_size_act = -s $filename;
+                $file_size_act = -s $file;
                 print $bitacora "\n----------------------------------------------------";
                 print $bitacora "\nTam actual : ".$file_size_act;
                 print $bitacora "\nTam Anterior : ".$file_size_ant."\n";

@@ -222,13 +222,15 @@ sub demonio_batch{
                 child_STDERR => '+>>debug.txt',
                 
                 );
-
+        $|=1;
         my $pid = $daemon->Init;
         #creacion de hash de archivos
         my @archivos = obtener_archivos($origin);
         my %tamanio_archivo;
+        print "tamño $archivos";
         foreach  (@archivos)
         {
+            print $_;
             $tamanio_archivo{$_}={'file_size_act' => -s $_,'file_size_ant' => 0 };
 
         }

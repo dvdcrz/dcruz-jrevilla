@@ -100,9 +100,11 @@ if($modo_continuo == 1){
 	if($origin ne ""){
 		print "\n\nObtener lista de archivos aqui";
 		print "\n\nLlamar al demonio para batch aqui.";
+		demonio_batch($log_directory,$directory,'uno',$origin);
+
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_directory,$directory,'uno',$origin);
+		demonio($log_directory,$directory,'uno',$file);
 	}	
 }else{
 	if($origin ne ""){

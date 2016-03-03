@@ -3,7 +3,7 @@
 use SnortUnified(qw(:ALL));
 use Funciones;
 use Cwd;
-#use Config;
+use Data::Dumper;
 
 =pod
 
@@ -43,6 +43,7 @@ my $modo_batch=0;
 my @files; #Para el modo batch
 my $file=""; #Solo para un archivo
 
+
 =head3 Procesamos los argumentos
 
 	OPCIONES:
@@ -78,7 +79,7 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help')
       	print "\n\n   -d, --directory      Directorio en el cual se guardaran los archivos generados.";
       	print "\n\n   -l, --log            Directorio para las bitácoras de ejecución de geninc.";
       	print "\n\nSINTAXIS:";
-      	print "\n\n1 archivo -> ./geninc.pl [-f <filepath> [-d <directory>] [-l <log_directory] [-c]]";
+      	print "\n\n1 archivo -> ./geninc.pl [<filepath> [-d <directory>] [-l <log_directory] [-c]]";
       	print "\n\n1 o mas archivos -> ./geninc [-b <filepath1> .. <filepathN> [-l <log_directory>] [-d <directory>]]";
 		print "\n\nEJEMPLOS DE EJECUCIÓN:";
       	print "\n\n\t./geninc -f merged-log -d /home/becario/ -l /var/log/";
@@ -139,11 +140,9 @@ if($modo_continuo == 1){
 	if($origin ne ""){
 		print "\n\nObtener lista de archivos aqui";
 		print "\n\nLlamar al demonio para batch aqui.";
-		demonio_batch($log_directory,$directory,'salida',$origin);
-
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_directory,$directory,'salida',$file);
+		demonio($log_directory,$directory,'uno',$file);
 	}	
 }else{
 	if($origin ne ""){

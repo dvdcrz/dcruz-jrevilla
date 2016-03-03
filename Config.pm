@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use Cwd;
 
 package VARIABLES
 
@@ -18,8 +19,7 @@ $directory                       ------->  Directorio por defecto para los archi
 
 =cut
 
-our $filename_prefix_unified_output = 'unified';  #Prefijo de salida para los archivos unified2
-our $filename_prefix_plano_output = 'plano';  #Prefijo de salida para los archivos planos
+our $filename_prefix_output = 'salida';  #Prefijo de salida para los archivos unified2
 our $log_dir = getcwd();  #Directorio por default para las bitacoras
 our $directory = getcwd();  #Directorio por defecto para los archivos de salida
 

@@ -102,7 +102,7 @@ if($modo_continuo == 1){
 		print "\n\nLlamar al demonio para batch aqui.";
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_directory,$directory,'uno',$file);
+		demonio($log_directory,$directory,'uno',$origin);
 	}	
 }else{
 	if($origin ne ""){

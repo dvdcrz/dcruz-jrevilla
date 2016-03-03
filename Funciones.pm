@@ -18,28 +18,33 @@ sub obtiene_incidentes
                                 #si el registro es un evento
                         if($record->{TYPE} == 7 || $record->{TYPE} == 72)
                         {
-                                $contador++;
+                                
                                 #si el incidente ya existe en el hash de eventos se agrega 1 al contador y se sobre escribe registro ultimo
                                 if(exists($incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}))
                                 {
+                                        if(exists($incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'eventos'}{$record->{'event_id'}})){next};
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'n_eventos'}++;
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo'} = $record;
                                         #suponiendo que snort siempre escribe el los eventos en un orden evento,paquete,evento
                                         # obtenemos el paquete correspondiente al evento
                                         $paquete = readSnortUnified2Record();
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo_paquete'} = $paquete;
+                                        $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'eventos'}{$record->{'event_id'}}=1;
                                 }
                                 else
                                 {
                                         #si no existe el incidente se crea con el eventeo primero ultimo iguales
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}={'id_incidente' => ++$id,'n_eventos' => 1,'primero' => $record, 'ultimo' => $record};
                                         $paquete = readSnortUnified2Record();
+                                        #los dos comparten el mismo paquete 
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'primero_paquete'} = $paquete;
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo_paquete'} = $paquete;
+                                        $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'eventos'}{$record->{'event_id'}}=1;
                                 }
                                         #print "$record->{'class'} $record->{'sip'} $record->{'protocol'}\n";
                                         #$incidentes{$record->{'class'}}{$record->{'sip'}}{$record->{'protocol'}}++;
                                         #print("entro");
+                                        $contador++;
                         }
                 }
                 closeSnortUnified();

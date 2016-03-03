@@ -6,7 +6,7 @@ package VARIABLES
 =pod
 
 
-=head1 VARIABLES GLOBALES DE CONFIGURACION DEL PROGRAMA
+=head1 VARIABLES GLOBALES DE CONFIGURACIO	N DEL PROGRAMA
 
 $filename_prefix_unified_output  ------->  Prefijo para el nombre de salida para los archivos unified2
 
@@ -18,10 +18,9 @@ $directory                       ------->  Directorio por defecto para los archi
 
 =cut
 
-my $filename_prefix_unified_output = 'unified';  #Prefijo de salida para los archivos unified2
-my $filename_prefix_plano_output = 'plano';  #Prefijo de salida para los archivos planos
-my $log_dir = getcwd();  #Directorio por default para las bitacoras
-my $directory = getcwd();  #Directorio por defecto para los archivos de salida
-
+our $filename_prefix_unified_output = 'unified';  #Prefijo de salida para los archivos unified2
+our $filename_prefix_plano_output = 'plano';  #Prefijo de salida para los archivos planos
+our $log_dir = getcwd();  #Directorio por default para las bitacoras
+our $directory = getcwd();  #Directorio por defecto para los archivos de salida
 
 1;

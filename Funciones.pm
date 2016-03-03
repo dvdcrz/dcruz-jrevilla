@@ -207,4 +207,74 @@ sub obtener_archivos{
         return @files;
 }
 
+sub demonio_batch{
+        my @argumentos = @_;
+        #print Dumper(@argumentos); 
+        my $directory_log = $argumentos[0];
+        my $directory = $argumentos[1];
+        my $name_output_file = $argumentos[2];
+        my $origin = $argumentos[3];
+        #my $filename = shift;
+        #print "Archivo: ".$filename;
+        my $daemon = Proc::Daemon -> new(
+                work_dir => $directory,
+                child_SDTOUT => '+>>salida.txt',
+                child_STDERR => '+>>debug.txt',
+                
+                );
+
+        my $pid = $daemon->Init;
+        #creacion de hash de archivos
+        my @archivos = obtener_archivos($origin);
+        my %tamanio_archivo;
+        foreach  (@archivos)
+        {
+            $tamanio_archivo{$_}={'file_size_act' => -s $_,'file_size_ant' => 0 };
+
+        }
+
+        my $id=0;
+        my %incidentes;
+        my @resultado;
+        #my $file_size_act = -s $file;
+        #my $file_size_ant = 0;
+        $|=1;
+        print "se incio con $pid";
+        while (1)
+        {
+                print "archivo $file id $id  tamño $file_size_act\n";
+                open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
+                foreach $key(keys %tamanio_archivo)
+                {
+                     if($tamanio_archivo{$key}{'file_size_act'} != $tamanio_archivo{$key}{'file_size_ant'} )
+                    {
+                        print $bitacora "\n--->Entro en el if";
+                        print $bitacora "\nTam actual en if: ".$tamanio_archivo{$key}{'file_size_act'};
+                        print $bitacora "\nTam Anterior en if: ".$tamanio_archivo{$key}{'file_size_ant'}."\n";
+                        @resultado=obtiene_incidentes(\%incidentes,$key,$id);
+                        $id=$resultado[1];
+                        %incidentes=%{$resultado[0]};
+                        
+                    }
+                }
+                imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
+
+                foreach $key(keys %tamanio_archivo)
+                {
+                    $tamanio_archivo{$key}{'file_size_ant'} = $tamanio_archivo{$key}{'file_size_act'};
+                    $tamanio_archivo{$key}{'file_size_act'} = -s $key;
+
+                    print $bitacora "\n----------------------------------------------------";
+                    print $bitacora "\nTam actual : ".$tamanio_archivo{$key}{'file_size_act'};
+                    print $bitacora "\nTam Anterior : ".$tamanio_archivo{$key}{'file_size_ant'}."\n";
+                }
+               
+
+            
+                close($bitacora);
+                sleep(30);
+        }
+
+}
+
 1;

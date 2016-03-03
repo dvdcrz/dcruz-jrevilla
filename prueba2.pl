@@ -44,7 +44,8 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help')
 		print "\n\nEJEMPLOS DE EJECUCIÓN:";
       	print "\n\n\t./geninc -f merged-log -d /home/becario/ -l /var/log/";
       	print "\n\n\t./geninc -f merged-log -c";
-      	print "\n\n\t./geninc -b unified1 unified2 unified3 -d /home/becario/";
+      	print "\n\n\t./geninc -b unified1 unified2 unified3 -d /home/becario/\n\n";
+      	exit 0;
 }
 else
 {

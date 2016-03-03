@@ -43,6 +43,7 @@ my $modo_batch=0;
 my @files; #Para el modo batch
 my $file=""; #Solo para un archivo
 
+
 =head3 Procesamos los argumentos
 
 	OPCIONES:

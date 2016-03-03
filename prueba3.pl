@@ -4,7 +4,6 @@ use SnortUnified(qw(:ALL));
 use Funciones;
 use Cwd;
 use Data::Dumper;
-use Origin;
 
 #Variables locales
 my $directory = getcwd();  #Directorio actual por default
@@ -18,7 +17,7 @@ my $file=""; #Solo para un archivo
 #Comprobamos para la ayuda
 if($ARGV[0] eq '-h' || $ARGV[0] eq '--help')
 {
-	print "\n-------------------------------------------------------------------------";
+        print "\n-------------------------------------------------------------------------";
 	print "\n			GENERADOR DE INCIDENTES				  ";
         print "\n-------------------------------------------------------------------------";
 	print "\n\nDESCRIPCION:";
@@ -46,116 +45,77 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help')
       	print "\n\n\t./geninc -f merged-log -d /home/becario/ -l /var/log/";
       	print "\n\n\t./geninc -f merged-log -c";
       	print "\n\n\t./geninc -b unified1 unified2 unified3 -d /home/becario/";
-
 }
 else
 {
-	my $error=0;	
-	#Recorremos todos los argumentos
-	while((my $arg = shift @ARGV) && $error == 0)
-	{
-		if($arg eq '-d' || $arg eq '--directory')
-		{
-			$directory = shift @ARGV;
-			print "\nDirectory: ".$directory;
-		}
-		elsif($arg eq '-o' || $arg eq '--origin')
-		{
-			$origin = shift @ARGV;
-			print "\nOrigin Directory: ".$origin;		
-		}
-		elsif($arg eq '-l' || $arg eq '--log')
-		{
-			$log_dir = shift @ARGV;
-			print "\nLog Directory: ".$log_dir;
-		}
-		elsif($arg eq '-c' || $arg eq '--continuos')
-		{
-			$modo_continuo = 1;
-			$file = shift @ARGV;
-			print "\nModo continuo activado";
-		}
-		elsif($arg eq '-b' || $arg eq '--batch')
-		{
-			$modo_batch = 1;
-			print "\nModo batch activado: ";
-		}
-		elsif($modo_batch == 1)
-		{
-			push @files,$arg;
-			print "\t".$arg;
-		}
-		elsif($arg eq '-f' || $arg eq '--file')
-		{
-			$file = shift @ARGV;
-			print "\nArchivo: ".$file;	
-		}
-		else
-		{
-			$error=1;
-			print "Error de sintaxis";
-		}
+        my $error=0;
+	if($ARGV[0] !~ /-.*/){ #Si no es una bandera, es decir no empieza con -, entonces es el archivo
+		print "Archivo: ".$ARGV[0];
+		$file = shift @ARGV;	
 	}
-
-	#Si no hubo error en la sintaxis de los argumentos
-	if($error == 0)
-	{
-		#Checamos la opciones
-		if($modo_batch == 0)
-		{ 
-			if($file ne "")
-			{
-				#modo demonio
-				if($modo_continuo == 1)
-				{
-					#AQUI DEBE IR LLAMADA A DEMONIO
-					print "Se activa el demonio";
-					demonio($log_directory,$directory,'uno',$file);
-				}
-				else
-				{
-					#funcionamiento normal
-					procesa_archivo($file,$log_directory,$directory,'salida');
-				}
-			}
-			else
-			{
-
-				print "\n\nERROR debes ingresar un el nombre del archivo con la bandera -f\n\n";
-			}
+		#Recorremos todos los argumentos
+	       	while((my $arg = shift @ARGV) && $error == 0)
+	        {
+	                if($arg eq '-d' || $arg eq '--directory')
+	                {
+	                        $directory = shift @ARGV;
+	                        print "\nDirectory: ".$directory;
+				$modo_batch =0;
+	                }
+	                elsif($arg eq '-o' || $arg eq '--origin')
+	                {
+	                        $origin = shift @ARGV;
+	                        print "\nOrigin Directory: ".$origin;
+				$modo_batch =0;
+	                }
+	                elsif($arg eq '-l' || $arg eq '--log')
+	                {
+	                        $log_dir = shift @ARGV;
+	                        print "\nLog Directory: ".$log_dir;
+				$modo_batch =0;
+	                }
+        	        elsif($arg eq '-c' || $arg eq '--continuos')
+	                {
+	                        $modo_continuo = 1;
+                        	print "\nModo continuo activado";
+				$modo_batch =0;
+	                }	
+	                elsif($arg eq '-b' || $arg eq '--batch')
+	                {
+	                        $modo_batch = 1;
+	                        print "\nModo batch activado: ";
+	                }
+	                elsif($modo_batch == 1)
+                	{
+	                        push @files,$arg;
+	                        print "\t".$arg;
+	                }
+	                else
+	                {
+	                        $error=1;
+	                        print "Error de sintaxis";
+				exit 0;
+	                }
 		}
-		else
-		{
-			if($file eq "")
-			{  #checamos que si esta modo por lotes no pueda usar la bandera -f porque los archivo se pasan por -b archivo1 archivo2
-				if(my $tam = @files != 0)
-				{
-					#est es el modo batch
-					#my $cont=0;
-					#foreach(@files)
-					#{
-						#se manda el nombre del archivo, directorio de log y de salida y numero??
-					#	procesa_archivo($_,$log_directory,$directory,$cont);
-					#	$cont++;
-					#}
-					#print "entro a alote\n";
-					#procesa_lote(\@files,$log_directory,$directory,1);
-					$referencia_incidentes =procesa_lote(\@files);
-					%incidentes = %{$referencia_incidentes};
+}
 
-					imprime_incidentes(\%incidentes,$log_directory,$directory,1);
-				}
-				else
-				{
-					print "\n\nERROR debes ingresar la lista de archivos despues de -b\n\n";
-				}
-			}
-			else
-			{ 
-				print "\n\nERROR de sintaxis: no puedes usar -b con -f\n\n";
-			}
-		}
+if($modo_continuo == 1){
+	if($origin ne ""){
+		print "\n\nObtener lista de archivos aqui";
+		print "\n\nLlamar al demonio para batch aqui.";
+	}else{
+		print "\n\nLlamar al demonio a un archivo aqui.";
+	}	
+}else{
+	if($origin ne ""){
+		print "\n\nOntener lista.";
+		print "\n\nLlamar por lotes.";
+	}elsif($modo_batch == 1){
+		print "Llamar por lotes con lista en comandos.";
+	}else{
+		print "\n\nLlamar al modo normal";
 	}
 }
+
 
 print "\n\n";

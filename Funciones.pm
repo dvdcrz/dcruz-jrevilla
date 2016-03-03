@@ -190,12 +190,20 @@ sub imprime_incidentes
 }
 
 sub obtener_archivos{
-        opendir (DIR,shift) or die "No se pudo abrir el directorio";
+    my $directorio = shift;
+    if($directorio !~ /.*\/$/){  #Agregamos una / si no acaba para concatenar el nombnre del archivo
+        $directorio = $directorio."/";
+    }
+        opendir (DIR,$directorio) or die "No se pudo abrir el directorio";
         my @files;
         while(readdir(DIR)){
                 if($_ !~  /^\..*/){ push @files,$_; }
         }
         closedir (DIR);
+    #Concatenamos el directorio a los archivos.
+    foreach(@files){
+        $_ = $directorio.$_;
+    }
         return @files;
 }
 

@@ -108,6 +108,11 @@ if($modo_continuo == 1){
 	if($origin ne ""){
 		print "\n\nOntener lista.";
 		print "\n\nLlamar por lotes.";
+		my @files = obtener_archivos($origin);
+		$referencia_incidentes =procesa_lote(\@files);
+		%incidentes = %{$referencia_incidentes};
+		imprime_incidentes(\%incidentes,$log_directory,$directory,1);
+
 	}elsif($modo_batch == 1){
 		print "Llamar por lotes con lista en comandos.";
 		$referencia_incidentes =procesa_lote(\@files);

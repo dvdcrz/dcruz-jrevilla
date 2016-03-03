@@ -41,6 +41,11 @@ if($ARGV[0] eq '-h' || $ARGV[0] eq '--help')
       	print "\n\nSINTAXIS:";
       	print "\n\n1 archivo -> ./geninc.pl [-f <filepath> [-d <directory>] [-l <log_directory] [-c]]";
       	print "\n\n1 o mas archivos -> ./geninc [-b <filepath1> .. <filepathN> [-l <log_directory>] [-d <directory>]]";
+	print "\n\nEJEMPLOS DE EJECUCIÓN:";
+      	print "\n\n\t./geninc -f merged-log -d /home/becario/ -l /var/log/";
+      	print "\n\n\t./geninc -f merged-log -c";
+      	print "\n\n\t./geninc -b unified1 unified2 unified3 -d /home/becario/";
+
 }
 else
 {

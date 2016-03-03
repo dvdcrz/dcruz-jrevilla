@@ -60,25 +60,21 @@ else
 	                {
 	                        $directory = shift @ARGV;
 	                        print "\nDirectory: ".$directory;
-				$modo_batch =0;
 	                }
 	                elsif($arg eq '-o' || $arg eq '--origin')
 	                {
 	                        $origin = shift @ARGV;
 	                        print "\nOrigin Directory: ".$origin;
-				$modo_batch =0;
 	                }
 	                elsif($arg eq '-l' || $arg eq '--log')
 	                {
 	                        $log_dir = shift @ARGV;
 	                        print "\nLog Directory: ".$log_dir;
-				$modo_batch =0;
 	                }
         	        elsif($arg eq '-c' || $arg eq '--continuos')
 	                {
 	                        $modo_continuo = 1;
                         	print "\nModo continuo activado";
-				$modo_batch =0;
 	                }	
 	                elsif($arg eq '-b' || $arg eq '--batch')
 	                {
@@ -114,7 +110,7 @@ if($modo_continuo == 1){
 		print "Llamar por lotes con lista en comandos.";
 	}else{
 		print "\n\nLlamar al modo normal";
-	}
+	}	
 }
 
 

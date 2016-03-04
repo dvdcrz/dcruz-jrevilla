@@ -140,29 +140,29 @@ if($modo_continuo == 1){
 	if($origin ne ""){
 		print "\n\nObtener lista de archivos aqui";
 		print "\n\nLlamar al demonio para batch aqui.";
-		demonio_batch($log_directory,$directory,'salida',$origin);
+		demonio_batch($log_dir,$directory,'salida',$origin);
 
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_directory,$directory,'salida',$file);
+		demonio($log_dir,$directory,'salida',$file);
 	}	
 }else{
 	if($origin ne ""){
 		print "\n\nOntener lista.";
 		print "\n\nLlamar por lotes.";
 		my @files = obtener_archivos($origin);
-		$referencia_incidentes =procesa_lote(\@files);
+		$referencia_incidentes =procesa_lote(\@files, $log_dir);
 		%incidentes = %{$referencia_incidentes};
-		imprime_incidentes(\%incidentes,$log_directory,$directory,1);
+		imprime_incidentes(\%incidentes,$log_dir,$directory,1);
 
 	}elsif($modo_batch == 1){
 		print "Llamar por lotes con lista en comandos.";
-		$referencia_incidentes =procesa_lote(\@files);
+		$referencia_incidentes =procesa_lote(\@files, $log_dir);
 		%incidentes = %{$referencia_incidentes};
-		imprime_incidentes(\%incidentes,$log_directory,$directory,1);
+		imprime_incidentes(\%incidentes,$log_dir,$directory,1);
 	}else{
 		print "\n\nLlamar al modo normal";
-		procesa_archivo($file,$log_directory,$directory,'salida');
+		procesa_archivo($file,$log_dir,$directory,'salida');
 	}	
 }
 

@@ -25,8 +25,8 @@ sub obtiene_incidentes
         my $file = $argumentos[1];
         my $id=$argumentos[2];
         my $contador;
-        $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
-        while ( $record = readSnortUnified2Record() )
+        my $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
+        while ( my $record = readSnortUnified2Record() )
                 {
                         
                                 #7               Unified2 IDS Event
@@ -34,7 +34,7 @@ sub obtiene_incidentes
                                 #si el registro es un evento
                         if($record->{TYPE} == 7 || $record->{TYPE} == 72)
                         {
-                                
+                                my $paquete;
                                 #si el incidente ya existe en el hash de eventos se agrega 1 al contador y se sobre escribe registro ultimo
                                 if(exists($incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}))
                                 {
@@ -88,9 +88,10 @@ sub procesa_archivo{
 	my $directory_log = $argumentos[1];
 	my $directory = $argumentos[2];
 	my $name_output_file = $argumentos[3];
+	my %incidentes;
         my $id=0;
          print "\nprocesando $file\n";
-                @resultado=obtiene_incidentes(\%incidentes,$file,$id);
+                my @resultado=obtiene_incidentes(\%incidentes,$file,$id);
                 $id=$resultado[1];
                 %incidentes=%{$resultado[0]};
                         
@@ -133,12 +134,12 @@ sub demonio{
         #se obtiene el tamaño actual de archivo
         my $file_size_act = -s $file;
         my $file_size_ant = 0;
-        $|=1;
+        #$|=1;
         print "se incio con $pid";
         while (1)
         {
                 print "archivo $file id $id  tamño $file_size_act\n";
-                open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
+                open (my $bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
                 #si el tamaño a cambiado
                 if($file_size_act != $file_size_ant)
                 {
@@ -178,6 +179,7 @@ sub procesa_lote{
         print "\n\nentro a lote sdsd";
         my $referenciaarch = shift;
         my @files = @{$referenciaarch};
+        my $directory_log = shift;
        # print @files;
         #print "entro\n";
         #my $directory_log = $argumentos[1];
@@ -185,11 +187,11 @@ sub procesa_lote{
         #my $name_output_file = $argumentos[3];
 
         open (STDERR, '>>', $directory_log.'bitacora.log') or die "No se pudo abrir";       
-        $incidentes_ref;
-        @resultado;
-        %incidentes=();
-        $id=0;
-        $posicion_final;
+        my $incidentes_ref;
+        my @resultado;
+        my %incidentes=();
+        my $id=0;
+        my $posicion_final;
                 #recorres el arreglo y obtiene incidentes de cada archivo
                 foreach(@files)
                 {
@@ -225,14 +227,14 @@ sub imprime_incidentes
         my $directory = $argumentos[2];
         my $name_output_file = $argumentos[3];
         
-        open($salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
-        open($salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
+        open(my $salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
+        open(my $salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
 
         #se iteran en el hash de incidentes
         print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
 
         #recorremos el hash donde cada llave es un incidente
-        foreach $key (keys %incidentes)
+        foreach my $key (keys %incidentes)
         {
                         #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registro
                         print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
@@ -243,7 +245,7 @@ sub imprime_incidentes
 
                         print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
         }
-        print "llego aqui $posicion_final";
+        print "llego aqui";
         #print (Dumper(%incidentes));
                 
         close($salida);
@@ -305,12 +307,13 @@ sub demonio_batch{
                 child_STDERR => '+>>debug.txt',
                 
                 );
-        $|=1;
+        #$|=1;
         my $pid = $daemon->Init;
         #creacion de hash de archivos
         my @archivos = obtener_archivos($origin);
         my %tamanio_archivo;
-        print "tamño $archivos";
+        my $tam = @archivos;
+        print "tamaño $tam";
         #creaccion de hash donde la llave es le nombre del archvio, se agrega el tamaño
         foreach  (@archivos)
         {
@@ -324,14 +327,14 @@ sub demonio_batch{
         my @resultado;
         #my $file_size_act = -s $file;
         #my $file_size_ant = 0;
-        $|=1;
+        #$|=1;
         print "se incio con $pid";
         while (1)
         {
-                print "archivo $file id $id  tamño $file_size_act\n";
-                open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
+                #print "archivo $file id $id  tamño $file_size_act\n";
+                open (my $bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
                 #se recorre el hash de archivos verificando si hay algun cambio, de ser asi se procesa el archivo
-                foreach $key(keys %tamanio_archivo)
+                foreach my $key(keys %tamanio_archivo)
                 {
                      if($tamanio_archivo{$key}{'file_size_act'} != $tamanio_archivo{$key}{'file_size_ant'} )
                     {
@@ -348,7 +351,7 @@ sub demonio_batch{
                 imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
 
                 #se recalcula el tamaño de los archivos
-                foreach $key(keys %tamanio_archivo)
+                foreach my $key(keys %tamanio_archivo)
                 {
                     $tamanio_archivo{$key}{'file_size_ant'} = $tamanio_archivo{$key}{'file_size_act'};
                     $tamanio_archivo{$key}{'file_size_act'} = -s $key;

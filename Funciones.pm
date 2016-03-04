@@ -1,5 +1,20 @@
 #!/usr/bin/perl
+use strict;
 use Proc::Daemon;
+
+=pod
+
+=head1 MODULO CON LAS FUNCIONES PRINCIPALES DE GENINC
+
+=cut
+
+=head2 Funcion ------->  obtiene_incidentes
+
+Recibe una referencia dehash ,un nombre de archivo y un id , se abre el archivo indicado y se cuentan los 
+eventos tipo 7 y 72 y los agrupa en incidentes dentro del hash recibido.
+
+=cut 
+
 #obtine_inccidentes recibe una referencia dehash ,un nombre de archivo y un id , se abre el archivo indicado y se cuentan los 
 #eventos tipo 7 y 72 y los agrupa en incidentes dentro del hash recibido
 sub obtiene_incidentes
@@ -56,6 +71,15 @@ sub obtiene_incidentes
 
 
 }
+
+=head2 Funcion -------->  procesa_archivo
+
+Recibe un nombre de archivo un directorio para escibir al log un directorio y nombre de salida llama a obtien incidentes 
+y con el hash obtenido llama a imprime incidentes que se encarga de deplegar la informaicon.
+
+=cut
+
+
 #procesa archivo  recibe un nombre de archivo un directorio para escibir al log un directorio y nombre de salida
 #llama a obtien incidentes y con el hash obtenido llama a imprime incidentes que se encarga de deplegar la informaicon
 sub procesa_archivo{
@@ -75,6 +99,14 @@ sub procesa_archivo{
 
 	
 }
+
+=head2 Funcion -------> demonio
+
+La funcion demonio recibe un directorio de log, directorio de salida, nombre de archivo de salida y nombre de archivo
+se inicializa un demonio que dentro de un loop obiene los incidentes y los imprime cada 30 seg.
+
+=cut
+
 #demonio, el demonio recibe un directorio de log, directorio de salida, nombre de archivo de salida y nombre de archivo
 #se inicializa un demonio que dentro de un loop obiene los incidentes y los imprime cada 30 seg
 sub demonio{
@@ -131,6 +163,14 @@ sub demonio{
         }
 
 }
+
+=head2 Funcion -------> procesa_lote
+
+Recibe una referencia a un arreglo que contiene los nombres de los archivos a procesar se llama a obtiene incidente 
+y se actualiza el hash, regresa una referencia a un  hash con los incidentes de los 3 archivos.
+
+=cut
+
 #procesa_lote recibe una referencia a un arreglo que contiene los nombres de los archivos a procesar
 #se llama a obtiene incidente y se actualiza el hash, regresa una referencia a un  hash con los incidentes de los 3 archivos
 sub procesa_lote{
@@ -166,6 +206,14 @@ sub procesa_lote{
         return \%incidentes;
 
 }
+
+=head2 Funcion -------> imprime_incidentes
+
+Imprime los incidentes que recibe de una referencia de hash, aqui se imprime el resument a un texto plano
+los eventos y sus paquetes se escriben en un archivo unified2.
+
+=cut
+
 #imprime los incidentes que recibe de una referencia de hash, aqui se imprime el resument a un texto plano
 #los eventos y sus paquetes se escriben en un archivo unified2
 sub imprime_incidentes
@@ -202,6 +250,12 @@ sub imprime_incidentes
         close($salida_plano);
 }
 
+=head2 Funcion -------> obtener_archivos
+
+Recibe un nombre de directorio y regresa un arreglo con todos los nombres de los archivos.
+
+=cut
+
 #obteber_archivos recibe un nombre de directorio y regresa un arreglo con todos los nombres de los archivos
 
 sub obtener_archivos{
@@ -221,6 +275,17 @@ sub obtener_archivos{
     }
         return @files;
 }
+
+=head2 Funcion --------> demonio_batch
+
+Recibe directorio de logs y salida, nombre de archiivo de salida y un directorio de origen, se obtienne todos los 
+archivos de origen con obtener archibvos, se crea un hash que contiene el tamaño actual y anterior de cada archivo, 
+en un loop se comprueba si ha cmabiado el tamño del archivo, de ser asi se procesa el contenido del archivo y se
+reescriben los archivos de salida.
+
+=cut
+
+
 #demonio_batch  recibe directorio de logs y salida, nombre de archiivo de salida y un directorio de origen
 #se obtienne todos los archivos de origen con obtener archibvos, se crea un hash que contiene el tamaño actual y anterior
 #de cada archivo, en un loop se comprueba si ha cmabiado el tamño del archivo, de ser asi se procesa el contenido del archivo y se

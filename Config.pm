@@ -2,7 +2,7 @@
 use strict;
 use Cwd;
 
-package VARIABLES
+package VARIABLES;
 
 =pod
 
@@ -20,7 +20,7 @@ $directory                       ------->  Directorio por defecto para los archi
 =cut
 
 our $filename_prefix_output = 'salida';  #Prefijo de salida para los archivos unified2
-our $log_dir = getcwd();  #Directorio por default para las bitacoras
-our $directory = getcwd();  #Directorio por defecto para los archivos de salida
+our $log_directory = getcwd();  #Directorio por default para las bitacoras
+our $directorio = getcwd();  #Directorio por defecto para los archivos de salida
 
 1;

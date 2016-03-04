@@ -3,7 +3,7 @@
 use SnortUnified(qw(:ALL));
 use Funciones;
 use Cwd;
-#use Config;
+use Config;
 
 =pod
 
@@ -35,9 +35,10 @@ use Cwd;
 =cut
 
 #Variables locales
-my $directory = getcwd();  #Directorio actual por default
+my $directory = $Config::directorio;  #Directorio actual por default
 my $origin= ""; #????
-my $log_dir = getcwd(); #Directorio actual por default
+my $log_dir = $Config::log_directory; #Directorio actual por default
+my $prefijo = $Config::filename_prefix_output;
 my $modo_continuo=0;
 my $modo_batch=0;
 my @files; #Para el modo batch
@@ -140,11 +141,11 @@ if($modo_continuo == 1){
 	if($origin ne ""){
 		print "\n\nObtener lista de archivos aqui";
 		print "\n\nLlamar al demonio para batch aqui.";
-		demonio_batch($log_dir,$directory,'salida',$origin);
+		demonio_batch($log_dir,$directory,$prefijo,$origin);
 
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_dir,$directory,'salida',$file);
+		demonio($log_dir,$directory,$prefijo,$file);
 	}	
 }else{
 	if($origin ne ""){
@@ -162,7 +163,7 @@ if($modo_continuo == 1){
 		imprime_incidentes(\%incidentes,$log_dir,$directory,1);
 	}else{
 		print "\n\nLlamar al modo normal";
-		procesa_archivo($file,$log_dir,$directory,'salida');
+		procesa_archivo($file,$log_dir,$directory,$prefijo);
 	}	
 }
 

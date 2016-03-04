@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use Proc::Daemon;
-use Data::Dumper;
+#obtine_inccidentes recibe una referencia dehash ,un nombre de archivo y un id , se abre el archivo indicado y se cuentan los 
+#eventos tipo 7 y 72 y los agrupa en incidentes dentro del hash recibido
 sub obtiene_incidentes
 {
         my @argumentos = @_;
@@ -49,12 +50,14 @@ sub obtiene_incidentes
                 }
                 closeSnortUnified();
                 print "se contaron $contador eventos \n";
-       # print Dumper(%incidentes);
+       
        print $id;
         return (\%incidentes,$id);
 
 
 }
+#procesa archivo  recibe un nombre de archivo un directorio para escibir al log un directorio y nombre de salida
+#llama a obtien incidentes y con el hash obtenido llama a imprime incidentes que se encarga de deplegar la informaicon
 sub procesa_archivo{
 	my @argumentos = @_;
 	my $file = $argumentos[0];
@@ -72,7 +75,8 @@ sub procesa_archivo{
 
 	
 }
-
+#demonio, el demonio recibe un directorio de log, directorio de salida, nombre de archivo de salida y nombre de archivo
+#se inicializa un demonio que dentro de un loop obiene los incidentes y los imprime cada 30 seg
 sub demonio{
         my @argumentos = @_;
         #print Dumper(@argumentos); 
@@ -82,17 +86,19 @@ sub demonio{
         my $file = $argumentos[3];
         #my $filename = shift;
         #print "Archivo: ".$filename;
+        #preconfiguracion del demonio
         my $daemon = Proc::Daemon -> new(
                 work_dir => $directory,
                 child_SDTOUT => '+>>salida.txt',
                 child_STDERR => '+>>debug.txt',
                 
                 );
-
+        #inicializacion del demonio
         my $pid = $daemon->Init;
         my $id=0;
         my %incidentes;
         my @resultado;
+        #se obtiene el tamaño actual de archivo
         my $file_size_act = -s $file;
         my $file_size_ant = 0;
         $|=1;
@@ -101,28 +107,32 @@ sub demonio{
         {
                 print "archivo $file id $id  tamño $file_size_act\n";
                 open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
-
+                #si el tamaño a cambiado
                 if($file_size_act != $file_size_ant)
                 {
                         print $bitacora "\n--->Entro en el if";
                         print $bitacora "\nTam actual en if: ".$file_size_act;
                         print $bitacora "\nTam Anterior en if: ".$file_size_ant."\n";
+                        #gactualiza el hash con la informaicon nueva
                         @resultado=obtiene_incidentes(\%incidentes,$file,$id);
                         $id=$resultado[1];
                         %incidentes=%{$resultado[0]};
                         imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
                 }
-
+                #recalcula el tamaño del archvio
                 $file_size_ant = $file_size_act;
                 $file_size_act = -s $file;
                 print $bitacora "\n----------------------------------------------------";
                 print $bitacora "\nTam actual : ".$file_size_act;
                 print $bitacora "\nTam Anterior : ".$file_size_ant."\n";
                 close($bitacora);
+                #esoera 30 seg
                 sleep(30);
         }
 
 }
+#procesa_lote recibe una referencia a un arreglo que contiene los nombres de los archivos a procesar
+#se llama a obtiene incidente y se actualiza el hash, regresa una referencia a un  hash con los incidentes de los 3 archivos
 sub procesa_lote{
         #$|=1;
         print "\n\nentro a lote sdsd";
@@ -140,6 +150,7 @@ sub procesa_lote{
         %incidentes=();
         $id=0;
         $posicion_final;
+                #recorres el arreglo y obtiene incidentes de cada archivo
                 foreach(@files)
                 {
                         print "\nprocesando $_\n";
@@ -151,10 +162,12 @@ sub procesa_lote{
 
                 }
         #imprime_incidentes(\%incidentes);
+        #retorna referencia a hash
         return \%incidentes;
 
 }
-
+#imprime los incidentes que recibe de una referencia de hash, aqui se imprime el resument a un texto plano
+#los eventos y sus paquetes se escriben en un archivo unified2
 sub imprime_incidentes
 {
         my @argumentos = @_;
@@ -170,10 +183,10 @@ sub imprime_incidentes
         #se iteran en el hash de incidentes
         print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
 
-
+        #recorremos el hash donde cada llave es un incidente
         foreach $key (keys %incidentes)
         {
-                        #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registor
+                        #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registro
                         print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{primero_paquete}{TYPE},$incidentes{$key}{primero_paquete}{SIZE}).$incidentes{$key}{primero_paquete}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{ultimo}{TYPE},$incidentes{$key}{ultimo}{SIZE}).$incidentes{$key}{ultimo}{raw_record};
@@ -182,12 +195,14 @@ sub imprime_incidentes
 
                         print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
         }
-        print "lelgo aqui $posicion_final";
+        print "llego aqui $posicion_final";
         #print (Dumper(%incidentes));
                 
         close($salida);
         close($salida_plano);
 }
+
+#obteber_archivos recibe un nombre de directorio y regresa un arreglo con todos los nombres de los archivos
 
 sub obtener_archivos{
     my $directorio = shift;
@@ -206,7 +221,10 @@ sub obtener_archivos{
     }
         return @files;
 }
-
+#demonio_batch  recibe directorio de logs y salida, nombre de archiivo de salida y un directorio de origen
+#se obtienne todos los archivos de origen con obtener archibvos, se crea un hash que contiene el tamaño actual y anterior
+#de cada archivo, en un loop se comprueba si ha cmabiado el tamño del archivo, de ser asi se procesa el contenido del archivo y se
+# reescriben los archivos de salida
 sub demonio_batch{
         my @argumentos = @_;
         #print Dumper(@argumentos); 
@@ -228,6 +246,7 @@ sub demonio_batch{
         my @archivos = obtener_archivos($origin);
         my %tamanio_archivo;
         print "tamño $archivos";
+        #creaccion de hash donde la llave es le nombre del archvio, se agrega el tamaño
         foreach  (@archivos)
         {
             print $_;
@@ -246,6 +265,7 @@ sub demonio_batch{
         {
                 print "archivo $file id $id  tamño $file_size_act\n";
                 open ($bitacora, '>>', 'bitacora.log') or die "No se pudo abrir";
+                #se recorre el hash de archivos verificando si hay algun cambio, de ser asi se procesa el archivo
                 foreach $key(keys %tamanio_archivo)
                 {
                      if($tamanio_archivo{$key}{'file_size_act'} != $tamanio_archivo{$key}{'file_size_ant'} )
@@ -259,8 +279,10 @@ sub demonio_batch{
                         
                     }
                 }
+                #cuando se terminan de procesar todos los archivos con cambios se escriben los archivos de salida
                 imprime_incidentes(\%incidentes,$directory_log,$directory,$name_output_file);
 
+                #se recalcula el tamaño de los archivos
                 foreach $key(keys %tamanio_archivo)
                 {
                     $tamanio_archivo{$key}{'file_size_ant'} = $tamanio_archivo{$key}{'file_size_act'};
@@ -274,6 +296,7 @@ sub demonio_batch{
 
             
                 close($bitacora);
+                #se esperan 30 seg para el siguiente ciclo
                 sleep(30);
         }
 

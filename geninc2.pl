@@ -142,7 +142,7 @@ if($modo_continuo == 1){
 		print "\n\nLlamar al demonio para batch aqui.";
 	}else{
 		print "\n\nLlamar al demonio a un archivo aqui.";
-		demonio($log_directory,$directory,'uno',$file);
+		demonio($log_directory,$directory,$file,$file);
 	}	
 }else{
 	if($origin ne ""){
@@ -160,7 +160,8 @@ if($modo_continuo == 1){
 		imprime_incidentes(\%incidentes,$log_directory,$directory,1);
 	}else{
 		print "\n\nLlamar al modo normal";
-		procesa_archivo($file,$log_directory,$directory,'salida');
+		#procesa_archivo($file,$log_directory,$directory,'salida');
+		procesa_archivo($file,$log_directory,$directory,$file);
 	}	
 }
 

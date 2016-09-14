@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use Proc::Daemon;
-
+use Data::Dumper;
 =pod
 
 =head1 MODULO CON LAS FUNCIONES PRINCIPALES DE GENINC
@@ -28,6 +28,7 @@ sub obtiene_incidentes
         my $UF_Data = openSnortUnified($file) or die "ERROR al abrir archivo";
         while ( my $record = readSnortUnified2Record() )
                 {
+			#print Dumper($record);
                         
                                 #7               Unified2 IDS Event
                                 #72              Unified2 IDS Event IP6
@@ -52,6 +53,7 @@ sub obtiene_incidentes
                                         #si no existe el incidente se crea con el eventeo primero ultimo iguales
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}={'id_incidente' => ++$id,'n_eventos' => 1,'primero' => $record, 'ultimo' => $record};
                                         $paquete = readSnortUnified2Record();
+					#print Dumper($paquete);
                                         #los dos comparten el mismo paquete 
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'primero_paquete'} = $paquete;
                                         $incidentes{$record->{'sig_id'},$record->{'sip'},$record->{'protocol'}}{'ultimo_paquete'} = $paquete;
@@ -221,34 +223,35 @@ los eventos y sus paquetes se escriben en un archivo unified2.
 sub imprime_incidentes
 {
         my @argumentos = @_;
-        #print Dumper(@argumentos); 
+        #print Dumper(@argumentos);
         my %incidentes = %{$argumentos[0]};
         my $directory_log = $argumentos[1];
         my $directory = $argumentos[2];
         my $name_output_file = $argumentos[3];
-        
-        open(my $salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
+       
+        #open(my $salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
         open(my $salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
-
+ 
         #se iteran en el hash de incidentes
         print $salida_plano "ID_incidente\tSeparador\tN_eventos\n";
-
+ 
         #recorremos el hash donde cada llave es un incidente
         foreach my $key (keys %incidentes)
         {
+            open(my $salida, '+>:unix',$directory.'/'.$incidentes{$key}{id_incidente}.'-'.$incidentes{$key}{primero}{protocol}.'-'.$incidentes{$key}{primero}{sig_id}.'.'.$name_output_file)or die "no se pudo abrir $!";
                         #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registro
                         print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{primero_paquete}{TYPE},$incidentes{$key}{primero_paquete}{SIZE}).$incidentes{$key}{primero_paquete}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{ultimo}{TYPE},$incidentes{$key}{ultimo}{SIZE}).$incidentes{$key}{ultimo}{raw_record};
                         print $salida  pack('NN',$incidentes{$key}{ultimo_paquete}{TYPE},$incidentes{$key}{ultimo_paquete}{SIZE}).$incidentes{$key}{ultimo_paquete}{raw_record};
-
-
+ 
+            close($salida);
                         print $salida_plano "$incidentes{$key}{id_incidente}\t|\t$incidentes{$key}{n_eventos} \n";
         }
         print "llego aqui";
         #print (Dumper(%incidentes));
-                
-        close($salida);
+               
+        #close($salida);
         close($salida_plano);
 }
 

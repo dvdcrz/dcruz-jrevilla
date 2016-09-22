@@ -230,6 +230,10 @@ sub imprime_incidentes
         my $name_output_file = $argumentos[3];
        
         #open(my $salida, '+>:unix',$directory.'/'.$name_output_file.'_unified2')or die "no se pudo abrir $!";
+
+        #generacion de unified general con todos los incidentes
+        open(my $salida_completa, '+>:unix',$directory.'/'.'completa_'.$name_output_file)or die "no se pudo abrir $!";
+
         open(my $salida_plano, '+>',$directory.'/'.$name_output_file.'_plano')or die "no se pudo abrir $!";
  
         #se iteran en el hash de incidentes
@@ -238,6 +242,14 @@ sub imprime_incidentes
         #recorremos el hash donde cada llave es un incidente
         foreach my $key (keys %incidentes)
         {
+            ######## impresion completa ####################
+                print $salida_completa pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
+                print $salida_completa  pack('NN',$incidentes{$key}{primero_paquete}{TYPE},$incidentes{$key}{primero_paquete}{SIZE}).$incidentes{$key}{primero_paquete}{raw_record};
+                print $salida_completa  pack('NN',$incidentes{$key}{ultimo}{TYPE},$incidentes{$key}{ultimo}{SIZE}).$incidentes{$key}{ultimo}{raw_record};
+                print $salida_completa  pack('NN',$incidentes{$key}{ultimo_paquete}{TYPE},$incidentes{$key}{ultimo_paquete}{SIZE}).$incidentes{$key}{ultimo_paquete}{raw_record};
+     
+            ####### impresion separada ###########################    
+
             open(my $salida, '+>:unix',$directory.'/'.$incidentes{$key}{id_incidente}.'-'.$incidentes{$key}{primero}{protocol}.'-'.$incidentes{$key}{primero}{sig_id}.'.'.$name_output_file)or die "no se pudo abrir $!";
                         #pasa a binario solo el tipo y la longitud, el contenido en binario lo proporciona SnortUnified cuando se lee el registro
                         print $salida  pack('NN',$incidentes{$key}{primero}{TYPE},$incidentes{$key}{primero}{SIZE}).$incidentes{$key}{primero}{raw_record};
@@ -252,6 +264,8 @@ sub imprime_incidentes
         #print (Dumper(%incidentes));
                
         #close($salida);
+        close($salida_completa);
+        
         close($salida_plano);
 }
 
